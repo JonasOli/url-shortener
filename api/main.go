@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/jonasOli/url-shortener/api/config"
-	"github.com/jonasOli/url-shortener/api/internal/handlers"
+	"github.com/jonasOli/url-shortener/api/internal/handler"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	defer db.Close()
 
 	app := fiber.New()
-	handlers.SetupRoutes(app)
+	handler.SetupRoutes(app)
 
 	log.Fatal(app.Listen(":8000"))
 }

@@ -1,11 +1,11 @@
-package repositories
+package repository
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 
-	"github.com/jonasOli/url-shortener/api/internal/models"
+	"github.com/jonasOli/url-shortener/api/internal/model"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -18,7 +18,7 @@ func NewURLRepository(db *sql.DB, redis *redis.Client) *URLRepository {
 	return &URLRepository{db, redis}
 }
 
-func (r *URLRepository) SaveURL(url models.URL) error {
+func (r *URLRepository) SaveURL(url model.URL) error {
 	_, err := r.db.Exec("INSERT INTO urls (id, original, short) VALUES ($1, $2, $3)", url.ID, url.Original, url.Short)
 
 	return err
