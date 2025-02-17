@@ -4,14 +4,14 @@ services:
     container_name: url-shortener-app
     depends_on:
       - db
-      # - redis
+      - redis
     env_file:
       - .env
     ports:
       - "8000:8000"
     restart: always
   db:
-    image: postgres:15
+    image: postgres:latest
     container_name: url-shortener-db
     restart: always
     env_file:
@@ -20,16 +20,18 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  #   volumes:
-  #     - rabbitmq_data:/var/lib/rabbitmq
+  redis:
+    image: redis
+    command: redis-server --requirepass Redis2019!
+    ports:
+      - "6379:6379"
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      - db
+    command: [ "-path", "/migrations", "-database", "postgres://myuser:mypassword@db:5432/url-shortener?sslmode=disable", "up" ]
 
 volumes:
   pgdata:
-  # rabbitmq_data:

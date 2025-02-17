@@ -20,7 +20,7 @@ func main() {
 	// redis := config.InitRedis()
 	defer db.Close()
 
-	app := fiber.New(fiber.Config{EnablePrintRoutes: true})
+	app := fiber.New()
 	handlers.SetupRoutes(app)
 
 	log.Fatal(app.Listen(":8000"))
