@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/jonasOli/url-shortener/api/internal/model"
 	"github.com/redis/go-redis/v9"
@@ -19,26 +18,32 @@ func NewURLRepository(db *sql.DB, redis *redis.Client) *URLRepository {
 }
 
 func (r *URLRepository) SaveURL(url model.URL) error {
-	_, err := r.db.Exec("INSERT INTO urls (id, original, short) VALUES ($1, $2, $3)", url.ID, url.Original, url.Short)
+	_, err := r.db.Exec("INSERT INTO urls (original, short_code) VALUES ($1, $2)", url.Original, url.Short)
 
 	return err
 }
 
-func (r *URLRepository) GetURL(short string) (string, error) {
+func (r *URLRepository) GetURL(short_code string) (string, error) {
 	ctx := context.Background()
 
-	cachedURL, err := r.redis.Get(ctx, short).Result()
+	cachedURL, err := r.redis.Get(ctx, short_code).Result()
 	if err == nil {
 		return cachedURL, nil
 	}
 
 	var original string
-	err = r.db.QueryRow("SELECT original FROM urls WHERE short=$1", short).Scan(&original)
+	err = r.db.QueryRow("SELECT original FROM urls WHERE short_code=$1", short_code).Scan(&original)
 	if err != nil {
-		return "", errors.New("URL not found")
+		return "", err
 	}
 
-	r.redis.Set(ctx, short, original, 0)
+	_, err = r.db.Exec("UPDATE urls set visit_count = visit_count + 1 where short_code=$1", short_code)
+
+	if err != nil {
+		return "", err
+	}
+
+	r.redis.Set(ctx, short_code, original, 0)
 
 	return original, nil
 }

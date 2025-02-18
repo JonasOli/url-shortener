@@ -17,11 +17,11 @@ func main() {
 	}
 
 	db := config.InitPostgres()
-	// redis := config.InitRedis()
+	redis := config.InitRedis()
 	defer db.Close()
 
 	app := fiber.New()
-	handler.SetupRoutes(app)
+	handler.SetupRoutes(app, db, redis)
 
 	log.Fatal(app.Listen(":8000"))
 }
