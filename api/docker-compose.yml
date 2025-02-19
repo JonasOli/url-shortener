@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: url-shortener-app
     depends_on:
       - db
@@ -28,7 +30,7 @@ services:
   migrate:
     image: migrate/migrate
     volumes:
-      - ./migrations:/migrations
+      - ./model/migration:/migrations
     depends_on:
       - db
     command: [ "-path", "/migrations", "-database", "postgres://myuser:mypassword@db:5432/url-shortener?sslmode=disable", "up" ]
