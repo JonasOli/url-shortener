@@ -2,9 +2,9 @@ package handler
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"github.com/jonasOli/url-shortener/api/internal/service"
 	"github.com/redis/go-redis/v9"
@@ -26,7 +26,7 @@ func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		short_url, err := service.ShortenURL(req.Url)
 
 		if err != nil {
-			log.Println("My error: %s", err)
+			log.Error(err)
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to shorten URL"})
 		}
 
@@ -39,7 +39,7 @@ func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		original_url, err := service.GetOriginalURL(short_code)
 
 		if err != nil {
-			log.Println("Error on get original url: %s", err)
+			log.Error("Error on get original url: %s", err)
 
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to get original URL"})
 		}

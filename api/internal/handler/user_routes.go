@@ -1,0 +1,55 @@
+package handler
+
+import (
+	"crypto/rsa"
+	"database/sql"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/jonasOli/url-shortener/api/internal/repository"
+	"github.com/jonasOli/url-shortener/api/internal/service"
+)
+
+func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
+	repo := repository.NewUserRepository(db)
+	service := service.NewUserService(repo)
+
+	app.Post("/user", func(c *fiber.Ctx) error {
+		var req struct {
+			Name     string `json:"name"`
+			Password string `json:"password"`
+		}
+
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+		}
+
+		err := service.CreateUser(req.Name, req.Password)
+
+		if err != nil {
+			log.Println(err)
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to create user"})
+		}
+
+		return c.SendStatus(200)
+	})
+
+	app.Post("/user/login", func(c *fiber.Ctx) error {
+		var req struct {
+			Name     string `json:"name"`
+			Password string `json:"password"`
+		}
+
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
+		}
+
+		token, err := service.Login(req.Name, req.Password, privateKey)
+
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{"token": token})
+	})
+}

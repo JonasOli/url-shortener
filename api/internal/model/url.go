@@ -8,4 +8,5 @@ type URL struct {
 	Short       string    `json:"short"`
 	Visit_count int       `json:"visit_count"`
 	Created_at  time.Time `json:"created_at"`
+	Created_by  int       `json:"created_by"`
 }
