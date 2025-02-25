@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"github.com/jonasOli/url-shortener/api/internal/service"
+	"github.com/jonasOli/url-shortener/api/internal/utils"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -23,7 +24,9 @@ func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		short_url, err := service.ShortenURL(req.Url)
+		user_name := utils.GetUserName(c)
+
+		short_url, err := service.ShortenURL(req.Url, user_name)
 
 		if err != nil {
 			log.Error(err)
@@ -33,6 +36,7 @@ func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		return c.JSON(fiber.Map{"short_url": short_url})
 	})
 
+	// Make this route public
 	app.Get("/:short_code", func(c *fiber.Ctx) error {
 		short_code := c.Params("short_code")
 

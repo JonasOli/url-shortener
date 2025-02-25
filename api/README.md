@@ -1,5 +1,11 @@
 # Go API
 
+## Useful links
+
+- <https://docs.gofiber.io/guide/error-handling>
+- <https://docs.docker.com/guides/golang/run-containers/>
+- <https://docs.gofiber.io/contrib/jwt/>
+
 ## Database migrations
 
 To create a migration:

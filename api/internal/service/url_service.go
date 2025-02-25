@@ -14,7 +14,7 @@ func NewURLService(repo *repository.URLRepository) *URLService {
 	return &URLService{repo}
 }
 
-func (s *URLService) ShortenURL(original string) (string, error) {
+func (s *URLService) ShortenURL(original string, user_name string) (string, error) {
 	short_url := uuid.New().String()[:8]
 
 	url := model.URL{
@@ -22,7 +22,7 @@ func (s *URLService) ShortenURL(original string) (string, error) {
 		Short:    short_url,
 	}
 
-	err := s.repo.SaveURL(url)
+	err := s.repo.SaveURL(url, user_name)
 
 	if err != nil {
 		return "", err
