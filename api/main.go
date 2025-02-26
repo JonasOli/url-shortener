@@ -25,10 +25,6 @@ func main() {
 
 	app := fiber.New()
 
-	if err != nil {
-		log.Fatalf("rsa.GenerateKey: %v", err)
-	}
-
 	handler.SetupPublicRoutes(app, db, redis)
 
 	handler.SetupPrivateRoutes(app, db, redis)
