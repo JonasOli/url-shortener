@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
@@ -45,12 +46,21 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		token, err := service.Signin(req.Email, req.Password)
+		session_key, err := service.Signin(req.Email, req.Password)
 
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(fiber.Map{"token": token})
+		c.Cookie(&fiber.Cookie{
+			Name:     "session_id",
+			Value:    session_key,
+			Expires:  time.Now().Add(time.Hour),
+			HTTPOnly: true,
+			Secure:   true,
+			SameSite: "Strict",
+		})
+
+		return c.SendStatus(200)
 	})
 }

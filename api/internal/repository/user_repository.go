@@ -42,18 +42,16 @@ func (r *UserRepository) GetUser(email string) (model.User, error) {
 }
 
 func (r *UserRepository) CreateSessionId(email string) (string, error) {
-	sessionKey, err := generateSessionKey()
+	session_key, err := generateSessionKey()
 
 	if err != nil {
 		return "", err
 	}
-
-	sessionID := "session:" + sessionKey
 	ctx := context.Background()
 
-	err = r.redis.Set(ctx, sessionID, email, time.Hour).Err()
+	err = r.redis.Set(ctx, session_key, email, time.Hour).Err()
 
-	return sessionID, err
+	return session_key, err
 }
 
 func generateSessionKey() (string, error) {

@@ -64,13 +64,13 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 		return "", fiber.NewError(400, "Invalid password")
 	}
 
-	sessionId, err := s.repo.CreateSessionId(email)
+	session_key, err := s.repo.CreateSessionId(email)
 
 	if err != nil {
 		return "", fiber.ErrInternalServerError
 	}
 
-	return sessionId, nil
+	return session_key, nil
 }
 
 func hashPassword(password string) (string, error) {
