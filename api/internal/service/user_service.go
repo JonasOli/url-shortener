@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jonasOli/url-shortener/api/internal/model"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -20,25 +21,25 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo}
 }
 
-func (s *UserService) Signup(name string, email string, password string) error {
+func (s *UserService) Signup(name string, email string, password string) (string, error) {
 	trimmedName := strings.TrimSpace(name)
 	trimmedEmail := strings.TrimSpace(email)
 	trimmedPassword := strings.TrimSpace(password)
 
 	if trimmedName == "" || trimmedPassword == "" || trimmedEmail == "" {
-		return errors.New("Name or password cannot be empty!")
+		return "", errors.New("Name or password cannot be empty!")
 	}
 
 	salt, err := generateSalt()
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	hashedPassword, err := hashPassword(strings.Join([]string{trimmedPassword, salt}, ""))
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	user := model.User{
@@ -48,9 +49,17 @@ func (s *UserService) Signup(name string, email string, password string) error {
 		Salt:     salt,
 	}
 
-	err = s.repo.CreateUser(user)
+	user_id, err := s.repo.CreateUser(user)
 
-	return err
+	if err != nil {
+		log.Infof("Error on CreateUser: %s", err)
+
+		return "", fiber.NewError(500, "Invalid password")
+	}
+
+	session_key, err := s.repo.CreateSessionId(user_id)
+
+	return session_key, err
 }
 
 func (s *UserService) Signin(email string, password string) (string, *fiber.Error) {

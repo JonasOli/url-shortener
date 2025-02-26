@@ -20,13 +20,19 @@ func NewUserRepository(db *sql.DB, redis *redis.Client) *UserRepository {
 	return &UserRepository{db, redis}
 }
 
-func (r *UserRepository) CreateUser(user model.User) error {
-	_, err := r.db.Exec(
-		"INSERT INTO users (name, email, password, salt) VALUES ($1, $2, $3, $4)",
-		user.Name, user.Email, user.Password, user.Salt,
-	)
+func (r *UserRepository) CreateUser(user model.User) (int, error) {
+	var user_id int
 
-	return err
+	err := r.db.QueryRow(
+		"INSERT INTO users (name, email, password, salt) VALUES ($1, $2, $3, $4) returning id",
+		user.Name, user.Email, user.Password, user.Salt,
+	).Scan(&user_id)
+
+	if err != nil {
+		return -1, err
+	}
+
+	return user_id, nil
 }
 
 func (r *UserRepository) GetUser(email string) (model.User, error) {
