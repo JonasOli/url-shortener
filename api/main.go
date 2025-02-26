@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
 	"crypto/rsa"
 	"log"
 
@@ -26,13 +25,11 @@ func main() {
 
 	app := fiber.New()
 
-	privateKey, err = rsa.GenerateKey(rand.Reader, 2048)
-
 	if err != nil {
 		log.Fatalf("rsa.GenerateKey: %v", err)
 	}
 
-	handler.SetupPublicRoutes(app, db, redis, privateKey)
+	handler.SetupPublicRoutes(app, db, redis)
 
 	handler.SetupPrivateRoutes(app, db, redis)
 

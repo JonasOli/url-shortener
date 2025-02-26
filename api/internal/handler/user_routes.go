@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"crypto/rsa"
 	"database/sql"
 	"log"
 
@@ -10,7 +9,7 @@ import (
 	"github.com/jonasOli/url-shortener/api/internal/service"
 )
 
-func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
+func UserRoutes(app *fiber.App, db *sql.DB) {
 	repo := repository.NewUserRepository(db)
 	service := service.NewUserService(repo)
 
@@ -37,7 +36,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 
 	app.Post("/user/login", func(c *fiber.Ctx) error {
 		var req struct {
-			Email     string `json:"email"`
+			Email    string `json:"email"`
 			Password string `json:"password"`
 		}
 
@@ -45,7 +44,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		token, err := service.Signin(req.Email, req.Password, privateKey)
+		token, err := service.Signin(req.Email, req.Password)
 
 		if err != nil {
 			return err

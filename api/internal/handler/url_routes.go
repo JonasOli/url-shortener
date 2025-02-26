@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
+func UlrPrivateRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 	repo := repository.NewURLRepository(db, redis)
 	service := service.NewURLService(repo)
 
@@ -32,8 +32,12 @@ func UlrRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 
 		return c.JSON(fiber.Map{"short_url": short_url})
 	})
+}
 
-	// Make this route public
+func UlrPublicRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
+	repo := repository.NewURLRepository(db, redis)
+	service := service.NewURLService(repo)
+
 	app.Get("/:short_code", func(c *fiber.Ctx) error {
 		short_code := c.Params("short_code")
 

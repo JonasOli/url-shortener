@@ -2,7 +2,6 @@ package service
 
 import (
 	"crypto/rand"
-	"crypto/rsa"
 	"encoding/base64"
 	"errors"
 	"strings"
@@ -54,7 +53,7 @@ func (s *UserService) Signup(name string, email string, password string) error {
 	return err
 }
 
-func (s *UserService) Signin(email string, password string, privateKey *rsa.PrivateKey) (string, *fiber.Error) {
+func (s *UserService) Signin(email string, password string) (string, *fiber.Error) {
 	user, err := s.repo.GetUser(email)
 
 	if err != nil {
