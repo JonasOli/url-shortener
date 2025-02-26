@@ -8,7 +8,7 @@ import (
 )
 
 func SetupPublicRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
-	UserRoutes(app, db)
+	UserRoutes(app, db, redis)
 	UlrPublicRoutes(app, db, redis)
 }
 

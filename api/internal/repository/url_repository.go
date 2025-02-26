@@ -17,8 +17,8 @@ func NewURLRepository(db *sql.DB, redis *redis.Client) *URLRepository {
 	return &URLRepository{db, redis}
 }
 
-func (r *URLRepository) SaveURL(url model.URL, userName string) error {
-	_, err := r.db.Exec("INSERT INTO urls (original, short_code, created_by) VALUES ($1, $2, (select id from users where name = $3))", url.Original, url.Short, userName)
+func (r *URLRepository) SaveURL(url model.URL, email string) error {
+	_, err := r.db.Exec("INSERT INTO urls (original, short_code, created_by) VALUES ($1, $2, (select id from users where email = $3))", url.Original, url.Short, email)
 
 	return err
 }

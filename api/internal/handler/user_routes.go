@@ -7,10 +7,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"github.com/jonasOli/url-shortener/api/internal/service"
+	"github.com/redis/go-redis/v9"
 )
 
-func UserRoutes(app *fiber.App, db *sql.DB) {
-	repo := repository.NewUserRepository(db)
+func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
+	repo := repository.NewUserRepository(db, redis)
 	service := service.NewUserService(repo)
 
 	app.Post("/user/signup", func(c *fiber.Ctx) error {

@@ -1,17 +1,23 @@
 package repository
 
 import (
+	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
+	"time"
 
 	"github.com/jonasOli/url-shortener/api/internal/model"
+	"github.com/redis/go-redis/v9"
 )
 
 type UserRepository struct {
-	db *sql.DB
+	db    *sql.DB
+	redis *redis.Client
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{db}
+func NewUserRepository(db *sql.DB, redis *redis.Client) *UserRepository {
+	return &UserRepository{db, redis}
 }
 
 func (r *UserRepository) CreateUser(user model.User) error {
@@ -33,4 +39,30 @@ func (r *UserRepository) GetUser(email string) (model.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *UserRepository) CreateSessionId(email string) (string, error) {
+	sessionKey, err := generateSessionKey()
+
+	if err != nil {
+		return "", err
+	}
+
+	sessionID := "session:" + sessionKey
+	ctx := context.Background()
+
+	err = r.redis.Set(ctx, sessionID, email, time.Hour).Err()
+
+	return sessionID, err
+}
+
+func generateSessionKey() (string, error) {
+	bytes := make([]byte, 32)
+	_, err := rand.Read(bytes)
+
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
