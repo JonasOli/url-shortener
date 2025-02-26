@@ -2,10 +2,10 @@ package handler
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"github.com/jonasOli/url-shortener/api/internal/service"
 	"github.com/redis/go-redis/v9"
@@ -29,7 +29,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		session_key, err := service.Signup(req.Name, req.Email, req.Password)
 
 		if err != nil {
-			log.Println(err)
+			log.Errorf("%s", err)
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to create user"})
 		}
 
@@ -70,6 +70,26 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			SameSite: "Strict",
 		})
 
-		return c.SendStatus(200)
+		return c.SendStatus(fiber.StatusOK)
+	})
+
+	app.Post("/user/signout", func(c *fiber.Ctx) error {
+		session_key := c.Cookies("session_id")
+
+		if session_key == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "No session",
+			})
+		}
+
+		err := service.Signout(session_key)
+
+		if err != nil {
+			log.Errorf("%s", err)
+
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.SendStatus(fiber.StatusOK)
 	})
 }

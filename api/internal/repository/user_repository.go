@@ -60,6 +60,13 @@ func (r *UserRepository) CreateSessionId(user_id int) (string, error) {
 	return session_key, err
 }
 
+func (r *UserRepository) DeleteUserSession(session_key string) error {
+	ctx := context.Background()
+	err := r.redis.Del(ctx, session_key).Err()
+
+	return err
+}
+
 func generateSessionKey() (string, error) {
 	bytes := make([]byte, 32)
 	_, err := rand.Read(bytes)

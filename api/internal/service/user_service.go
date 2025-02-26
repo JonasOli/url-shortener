@@ -82,6 +82,12 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 	return session_key, nil
 }
 
+func (s *UserService) Signout(session_key string) error {
+	err := s.repo.DeleteUserSession(session_key)
+
+	return err
+}
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 
