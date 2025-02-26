@@ -64,7 +64,7 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 		return "", fiber.NewError(400, "Invalid password")
 	}
 
-	session_key, err := s.repo.CreateSessionId(email)
+	session_key, err := s.repo.CreateSessionId(user.ID)
 
 	if err != nil {
 		return "", fiber.ErrInternalServerError

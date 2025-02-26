@@ -5,6 +5,12 @@
 - <https://docs.gofiber.io/guide/error-handling>
 - <https://docs.docker.com/guides/golang/run-containers/>
 
+## Redis
+
+```bash
+docker exec -it container_id redis-cli -a 'redis_password'
+```
+
 ## Database migrations
 
 To create a migration:

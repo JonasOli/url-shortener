@@ -2,11 +2,13 @@ package handler
 
 import (
 	"database/sql"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"github.com/jonasOli/url-shortener/api/internal/service"
+	"github.com/jonasOli/url-shortener/api/internal/utils"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -14,7 +16,7 @@ func UlrPrivateRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 	repo := repository.NewURLRepository(db, redis)
 	service := service.NewURLService(repo)
 
-	app.Post("/shorten", func(c *fiber.Ctx) error {
+	app.Post("/shorten", utils.AuthMiddleware(redis), func(c *fiber.Ctx) error {
 		var req struct {
 			Url string `json:"url"`
 		}
@@ -23,7 +25,14 @@ func UlrPrivateRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		short_url, err := service.ShortenURL(req.Url, "user_name")
+		user_id, err := strconv.Atoi(c.Locals("user_id").(string))
+
+		if err != nil {
+			log.Error(err)
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to shorten URL"})
+		}
+
+		short_url, err := service.ShortenURL(req.Url, user_id)
 
 		if err != nil {
 			log.Error(err)
