@@ -15,15 +15,18 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) CreateUser(user model.User) error {
-	_, err := r.db.Exec("INSERT INTO users (name, password) VALUES ($1, $2)", user.Name, user.Password)
+	_, err := r.db.Exec(
+		"INSERT INTO users (name, email, password, salt) VALUES ($1, $2, $3, $4)",
+		user.Name, user.Email, user.Password, user.Salt,
+	)
 
 	return err
 }
 
-func (r *UserRepository) GetUser(name string) (model.User, error) {
+func (r *UserRepository) GetUser(email string) (model.User, error) {
 	var user model.User
 
-	err := r.db.QueryRow("SELECT id, password FROM users WHERE name=$1", name).Scan(&user.ID, &user.Password)
+	err := r.db.QueryRow("SELECT id, password, salt FROM users WHERE email=$1", email).Scan(&user.ID, &user.Password, &user.Salt)
 
 	if err != nil {
 		return model.User{}, err

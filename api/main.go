@@ -9,8 +9,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/jonasOli/url-shortener/api/config"
 	"github.com/jonasOli/url-shortener/api/internal/handler"
-
-	jwtware "github.com/gofiber/contrib/jwt"
 )
 
 var privateKey *rsa.PrivateKey
@@ -35,13 +33,6 @@ func main() {
 	}
 
 	handler.SetupPublicRoutes(app, db, redis, privateKey)
-
-	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: jwtware.SigningKey{
-			JWTAlg: jwtware.RS256,
-			Key:    privateKey.Public(),
-		},
-	}))
 
 	handler.SetupPrivateRoutes(app, db, redis)
 

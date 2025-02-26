@@ -14,9 +14,10 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 	repo := repository.NewUserRepository(db)
 	service := service.NewUserService(repo)
 
-	app.Post("/user", func(c *fiber.Ctx) error {
+	app.Post("/user/signup", func(c *fiber.Ctx) error {
 		var req struct {
 			Name     string `json:"name"`
+			Email    string `json:"email"`
 			Password string `json:"password"`
 		}
 
@@ -24,7 +25,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		err := service.CreateUser(req.Name, req.Password)
+		err := service.Signup(req.Name, req.Email, req.Password)
 
 		if err != nil {
 			log.Println(err)
@@ -36,7 +37,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 
 	app.Post("/user/login", func(c *fiber.Ctx) error {
 		var req struct {
-			Name     string `json:"name"`
+			Email     string `json:"email"`
 			Password string `json:"password"`
 		}
 
@@ -44,7 +45,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, privateKey *rsa.PrivateKey) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		token, err := service.Login(req.Name, req.Password, privateKey)
+		token, err := service.Signin(req.Email, req.Password, privateKey)
 
 		if err != nil {
 			return err

@@ -1,13 +1,13 @@
 package service
 
 import (
+	"crypto/rand"
 	"crypto/rsa"
+	"encoding/base64"
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/jonasOli/url-shortener/api/internal/model"
 	"github.com/jonasOli/url-shortener/api/internal/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -21,15 +21,22 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{repo}
 }
 
-func (s *UserService) CreateUser(name string, password string) error {
+func (s *UserService) Signup(name string, email string, password string) error {
 	trimmedName := strings.TrimSpace(name)
+	trimmedEmail := strings.TrimSpace(email)
 	trimmedPassword := strings.TrimSpace(password)
 
-	if trimmedName == "" || trimmedPassword == "" {
+	if trimmedName == "" || trimmedPassword == "" || trimmedEmail == "" {
 		return errors.New("Name or password cannot be empty!")
 	}
 
-	hashedPassword, err := _HashPassword(trimmedPassword)
+	salt, err := generateSalt()
+
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := hashPassword(strings.Join([]string{trimmedPassword, salt}, ""))
 
 	if err != nil {
 		return err
@@ -37,7 +44,9 @@ func (s *UserService) CreateUser(name string, password string) error {
 
 	user := model.User{
 		Name:     trimmedName,
+		Email:    trimmedEmail,
 		Password: hashedPassword,
+		Salt:     salt,
 	}
 
 	err = s.repo.CreateUser(user)
@@ -45,40 +54,39 @@ func (s *UserService) CreateUser(name string, password string) error {
 	return err
 }
 
-func (s *UserService) Login(name string, password string, privateKey *rsa.PrivateKey) (string, *fiber.Error) {
-	user, err := s.repo.GetUser(name)
+func (s *UserService) Signin(email string, password string, privateKey *rsa.PrivateKey) (string, *fiber.Error) {
+	user, err := s.repo.GetUser(email)
 
 	if err != nil {
 		return "", fiber.ErrInternalServerError
 	}
 
-	if validPassword := _VerifyPassword(password, user.Password); !validPassword {
+	if validPassword := verifyPassword(strings.Join([]string{password, user.Salt}, ""), user.Password); !validPassword {
 		return "", fiber.NewError(400, "Invalid password")
 	}
 
-	claims := jwt.MapClaims{
-		"name":  name,
-		"admin": true,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-
-	t, err := token.SignedString(privateKey)
-
-	if err != nil {
-		return "", fiber.ErrInternalServerError
-	}
-
-	return t, nil
+	return "", nil
 }
 
-func _HashPassword(password string) (string, error) {
+func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+
 	return string(bytes), err
 }
 
-func _VerifyPassword(password, hash string) bool {
+func verifyPassword(password string, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
 	return err == nil
+}
+
+func generateSalt() (string, error) {
+	bytes := make([]byte, 16)
+	_, err := rand.Read(bytes)
+
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
