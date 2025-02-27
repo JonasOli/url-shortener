@@ -1,6 +1,4 @@
-"use client";
-
-import { Button, Container } from "@mui/material";
+import { Container } from "@mui/material";
 import Link from "next/link";
 
 export default function Page() {
