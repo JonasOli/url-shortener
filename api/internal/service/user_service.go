@@ -66,6 +66,7 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 	user, err := s.repo.GetUser(email)
 
 	if err != nil {
+		log.Errorf("%s", err)
 		return "", fiber.ErrInternalServerError
 	}
 
@@ -76,6 +77,7 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 	session_key, err := s.repo.CreateSessionId(user.ID)
 
 	if err != nil {
+		log.Errorf("%s", err)
 		return "", fiber.ErrInternalServerError
 	}
 
