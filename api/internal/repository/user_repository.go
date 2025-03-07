@@ -68,7 +68,7 @@ func (r *UserRepository) DeleteUserSession(session_key string) error {
 }
 
 func generateSessionKey() (string, error) {
-	bytes := make([]byte, 32)
+	bytes := make([]byte, 128)
 	_, err := rand.Read(bytes)
 
 	if err != nil {
