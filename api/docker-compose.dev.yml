@@ -29,7 +29,7 @@ services:
     restart: always
     env_file:
       - .env.dev
-    command: redis-server --requirepass "$REDIS_PASSWORD"
+    command: redis-server --requirepass Redis2019!
     ports:
       - "6379:6379"
   migrate:
