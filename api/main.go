@@ -1,16 +1,14 @@
 package main
 
 import (
-	"crypto/rsa"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/jonasOli/url-shortener/api/config"
 	"github.com/jonasOli/url-shortener/api/internal/handler"
 )
-
-var privateKey *rsa.PrivateKey
 
 func main() {
 	err := godotenv.Load()
@@ -24,6 +22,8 @@ func main() {
 	defer db.Close()
 
 	app := fiber.New()
+
+	app.Use(cors.New())
 
 	handler.SetupPublicRoutes(app, db, redis)
 
