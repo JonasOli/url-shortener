@@ -1,11 +1,29 @@
-import Input from "@/components/Input";
-import { Button, Container, InputLabel, styled } from "@mui/material";
-import { grey } from "@mui/material/colors";
-import { useForm } from "react-hook-form";
+import { signIn } from '@/action/signin';
+import Input from '@/components/Input';
+import { Button, Container, InputLabel, styled } from '@mui/material';
+import { grey } from '@mui/material/colors';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+
+type FormData = {
+  email: string;
+  password: string;
+};
 
 export default function SignIn() {
-  const { register, handleSubmit } = useForm();
-  const onSubmit = (data: unknown) => console.log(data);
+  const router = useRouter();
+
+  const { register, handleSubmit } = useForm<FormData>();
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      await signIn(data.email, data.password);
+    } catch (e) {
+      console.error(e);
+    }
+
+    router.push('/');
+  };
 
   return (
     <CustomContainer maxWidth="sm">
@@ -17,18 +35,20 @@ export default function SignIn() {
           <Input
             placeholder="Enter email..."
             type="email"
-            {...register("email")}
+            {...register('email')}
           />
 
           <InputLabel>Password</InputLabel>
           <Input
             placeholder="Enter password..."
             type="password"
-            {...register("password")}
+            {...register('password')}
           />
         </div>
 
-        <Button type="submit">Sign in</Button>
+        <Button variant="contained" type="submit">
+          Sign in
+        </Button>
       </form>
     </CustomContainer>
   );

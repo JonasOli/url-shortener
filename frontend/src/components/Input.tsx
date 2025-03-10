@@ -1,5 +1,5 @@
-import { Input, styled } from "@mui/material";
-import { blue, grey } from "@mui/material/colors";
+import { Input, styled } from '@mui/material';
+import { blue, grey } from '@mui/material/colors';
 
 export default styled(Input)(
   ({ theme }) => `
@@ -10,11 +10,11 @@ export default styled(Input)(
     line-height: 1.5;
     padding: 8px 12px;
     border-radius: 8px;
-    color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
-    background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
-    border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+    background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+    border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
     box-shadow: 0 2px 4px ${
-      theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"
+      theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.05)'
     };
   
     &:before, &:after {
@@ -28,7 +28,7 @@ export default styled(Input)(
     &:focus {
       border-color: ${blue[400]};
       box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? blue[600] : blue[200]
+        theme.palette.mode === 'dark' ? blue[600] : blue[200]
       };
     }
   
