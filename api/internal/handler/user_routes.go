@@ -52,6 +52,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		}
 
 		if err := c.BodyParser(&req); err != nil {
+			log.Errorf("Error on /user/login: %s", err)
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
