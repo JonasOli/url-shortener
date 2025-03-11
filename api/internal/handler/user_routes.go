@@ -34,7 +34,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		}
 
 		c.Cookie(&fiber.Cookie{
-			Name:     "session_id",
+			Name:     "session-id",
 			Value:    session_key,
 			Expires:  time.Now().Add(time.Hour),
 			HTTPOnly: true,
@@ -42,7 +42,7 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			SameSite: "Strict",
 		})
 
-		return c.SendStatus(201)
+		return c.SendStatus(fiber.StatusNoContent)
 	})
 
 	app.Post("/user/login", func(c *fiber.Ctx) error {
@@ -63,19 +63,19 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 		}
 
 		c.Cookie(&fiber.Cookie{
-			Name:     "session_id",
+			Name:     "session-id",
 			Value:    session_key,
-			Expires:  time.Now().Add(time.Hour),
+			Expires:  time.Now().Add(24 * time.Hour),
 			HTTPOnly: true,
 			Secure:   true,
 			SameSite: "Strict",
 		})
 
-		return c.SendStatus(fiber.StatusOK)
+		return c.SendStatus(fiber.StatusNoContent)
 	})
 
 	app.Post("/user/signout", func(c *fiber.Ctx) error {
-		session_key := c.Cookies("session_id")
+		session_key := c.Cookies("session-id")
 
 		if session_key == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
