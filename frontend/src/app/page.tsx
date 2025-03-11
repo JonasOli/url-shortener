@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Container } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
@@ -9,7 +11,7 @@ export default function Page() {
       <h1 style={{ textAlign: 'center' }}>URL shortener</h1>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-        <Button variant="contained" onClick={() => router.push('/signIn')}>
+        <Button variant="contained" onClick={() => router.push('/sign-in')}>
           Sign-in
         </Button>
 

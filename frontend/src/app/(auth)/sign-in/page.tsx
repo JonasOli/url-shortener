@@ -1,5 +1,6 @@
-import { signIn } from '@/action/signin';
-import Input from '@/components/Input';
+'use client';
+
+import Input from '@/app/components/Input';
 import { Button, Container, InputLabel, styled } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useRouter } from 'next/navigation';
@@ -17,12 +18,19 @@ export default function SignIn() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await signIn(data.email, data.password);
+      await fetch('http://localhost:8000/user/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: data.email, password: data.password }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      router.push('/dashboard');
     } catch (e) {
       console.error(e);
     }
-
-    router.push('/');
   };
 
   return (
