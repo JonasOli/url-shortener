@@ -47,3 +47,29 @@ func (r *URLRepository) GetURL(short_code string) (string, error) {
 
 	return original, nil
 }
+
+func (r *URLRepository) ListUrlsByUser(user_id int) ([]model.URL, error) {
+	var urls []model.URL
+
+	rows, err := r.db.Query("SELECT * FROM urls WHERE created_by = $1", user_id)
+
+	if err != nil {
+		return []model.URL{}, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var url model.URL
+		if err = rows.Scan(&url.ID, &url.Original, &url.Short, &url.Visit_count, &url.Created_at, &url.Created_by); err != nil {
+			return []model.URL{}, err
+		}
+		urls = append(urls, url)
+	}
+
+	if err != nil {
+		return []model.URL{}, err
+	}
+
+	return urls, nil
+}

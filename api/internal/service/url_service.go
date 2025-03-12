@@ -40,3 +40,13 @@ func (s *URLService) GetOriginalURL(short_code string) (string, error) {
 
 	return original_url, nil
 }
+
+func (s *URLService) ListUserShortenedUrls(user_id int) ([]model.URL, error) {
+	urls, err := s.repo.ListUrlsByUser(user_id)
+
+	if err != nil {
+		return []model.URL{}, err
+	}
+
+	return urls, nil
+}

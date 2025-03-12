@@ -41,6 +41,24 @@ func UlrPrivateRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 
 		return c.JSON(fiber.Map{"short_url": short_url})
 	})
+
+	app.Get("/urls/list", utils.AuthMiddleware(redis), func(c *fiber.Ctx) error {
+		user_id, err := strconv.Atoi(c.Locals("user_id").(string))
+
+		if err != nil {
+			log.Error(err)
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to shorten URL"})
+		}
+
+		urls, err := service.ListUserShortenedUrls(user_id)
+
+		if err != nil {
+			log.Error(err)
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to shorten URL"})
+		}
+
+		return c.JSON(urls)
+	})
 }
 
 func UlrPublicRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
