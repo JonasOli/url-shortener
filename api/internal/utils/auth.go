@@ -9,7 +9,7 @@ import (
 
 func AuthMiddleware(redis_client *redis.Client) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		session_key := c.Cookies("session_id")
+		session_key := c.Cookies("session-id")
 
 		if session_key == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
