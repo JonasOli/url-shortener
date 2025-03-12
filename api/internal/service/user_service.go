@@ -27,7 +27,7 @@ func (s *UserService) Signup(name string, email string, password string) (string
 	trimmedPassword := strings.TrimSpace(password)
 
 	if trimmedName == "" || trimmedPassword == "" || trimmedEmail == "" {
-		return "", errors.New("Name or password cannot be empty!")
+		return "", errors.New("name or password cannot be empty")
 	}
 
 	salt, err := generateSalt()
@@ -67,7 +67,7 @@ func (s *UserService) Signin(email string, password string) (string, *fiber.Erro
 
 	if err != nil {
 		log.Errorf("%s", err)
-		return "", fiber.ErrInternalServerError
+		return "", fiber.NewError(400, "Invalid email")
 	}
 
 	if validPassword := verifyPassword(strings.Join([]string{password, user.Salt}, ""), user.Password); !validPassword {
