@@ -1,79 +1,85 @@
 'use client';
 
+import { signIn } from '@/app/actions/auth';
+import Container from '@/app/components/Container';
 import Input from '@/app/components/Input';
-import { Button, Container, InputLabel, styled } from '@mui/material';
-import { grey } from '@mui/material/colors';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import {
+  Alert,
+  Button,
+  InputLabel,
+  Snackbar,
+  SnackbarCloseReason,
+} from '@mui/material';
+import { useActionState, useEffect, useState } from 'react';
 
-type FormData = {
-  email: string;
-  password: string;
+const initialState = {
+  error: '',
 };
 
 export default function SignIn() {
-  const router = useRouter();
+  const [openErrorToast, setOpenErrorToast] = useState(false);
 
-  const { register, handleSubmit } = useForm<FormData>();
+  const [state, formAction, isPending] = useActionState(signIn, initialState);
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      await fetch('http://localhost:8000/user/login', {
-        method: 'POST',
-        body: JSON.stringify({ email: data.email, password: data.password }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      router.push('/dashboard');
-    } catch (e) {
-      console.error(e);
+  useEffect(() => {
+    if (state?.error) {
+      setOpenErrorToast(true);
     }
+  }, [state]);
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenErrorToast(false);
   };
 
   return (
-    <CustomContainer maxWidth="sm">
+    <Container maxWidth="sm">
       <h1>Sign in</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <Snackbar
+        open={openErrorToast}
+        autoHideDuration={5000}
+        onClose={handleClose}
+      >
+        <Alert severity="error" variant="filled" sx={{ width: '100%' }}>
+          {state?.error}
+        </Alert>
+      </Snackbar>
+
+      <form action={formAction}>
         <div>
           <InputLabel>Email</InputLabel>
           <Input
+            name="email"
             placeholder="Enter email..."
             type="email"
-            {...register('email')}
+            required
           />
 
           <InputLabel>Password</InputLabel>
           <Input
+            name="password"
             placeholder="Enter password..."
             type="password"
-            {...register('password')}
+            required
           />
         </div>
 
-        <Button variant="contained" type="submit">
+        <Button
+          variant="contained"
+          type="submit"
+          loading={isPending}
+          disabled={isPending}
+        >
           Sign in
         </Button>
       </form>
-    </CustomContainer>
+    </Container>
   );
 }
-
-const CustomContainer = styled(Container)`
-  border: 1px solid ${grey[300]};
-  border-radius: 5px;
-  padding: 2rem;
-
-  & {
-    label {
-      margin-top: 1rem;
-    }
-
-    button {
-      margin-top: 1rem;
-    }
-  }
-`;

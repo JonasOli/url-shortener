@@ -1,3 +1,5 @@
+'use client';
+
 import { Input, styled } from '@mui/material';
 import { blue, grey } from '@mui/material/colors';
 
