@@ -26,23 +26,14 @@ func UserRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 			return c.Status(400).JSON(fiber.Map{"error": "Invalid request"})
 		}
 
-		session_key, err := service.Signup(req.Name, req.Email, req.Password)
+		err := service.Signup(req.Name, req.Email, req.Password)
 
 		if err != nil {
 			log.Errorf("%s", err)
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to create user"})
 		}
 
-		c.Cookie(&fiber.Cookie{
-			Name:     "session-id",
-			Value:    session_key,
-			Expires:  time.Now().Add(time.Hour),
-			HTTPOnly: true,
-			Secure:   true,
-			SameSite: "Strict",
-		})
-
-		return c.SendStatus(fiber.StatusNoContent)
+		return c.SendStatus(fiber.StatusCreated)
 	})
 
 	app.Post("/user/login", func(c *fiber.Ctx) error {
