@@ -15,7 +15,7 @@ export default function Page() {
           Sign-in
         </Button>
 
-        <Button variant="contained" onClick={() => router.push('/signUp')}>
+        <Button variant="contained" onClick={() => router.push('/sign-up')}>
           Sign-up
         </Button>
       </div>

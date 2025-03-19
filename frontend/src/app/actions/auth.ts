@@ -31,6 +31,28 @@ export async function signIn(prevState: unknown, data: FormData) {
   }
 }
 
+export async function signUp(prevState: unknown, data: FormData) {
+  const res = await fetch('http://localhost:8000/user/signup', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: data.get('name') as string,
+      email: data.get('email') as string,
+      password: data.get('password') as string,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (res.status === 400) {
+    return { error: 'Invalid email or password' };
+  }
+
+  if (res.status === 201) {
+    redirect('/');
+  }
+}
+
 export async function signOut() {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('session-id');
