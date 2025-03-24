@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { cookies } from 'next/headers';
+import ShortenUrl from './ShortenUrl';
 
 type Url = {
   id: number;
@@ -32,8 +33,10 @@ export default async function Dashboard() {
     <section>
       <h1>My urls</h1>
 
+      <ShortenUrl />
+
       {urls?.length && (
-        <table>
+        <table style={{ marginTop: '1rem' }}>
           <thead>
             <tr>
               <th>Original url</th>
