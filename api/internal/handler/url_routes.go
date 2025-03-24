@@ -16,7 +16,7 @@ func UlrPrivateRoutes(app *fiber.App, db *sql.DB, redis *redis.Client) {
 	repo := repository.NewURLRepository(db, redis)
 	service := service.NewURLService(repo)
 
-	app.Post("/shorten", utils.AuthMiddleware(redis), func(c *fiber.Ctx) error {
+	app.Post("/urls/shorten", utils.AuthMiddleware(redis), func(c *fiber.Ctx) error {
 		var req struct {
 			Url string `json:"url"`
 		}
