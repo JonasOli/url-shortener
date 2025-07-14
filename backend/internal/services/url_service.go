@@ -27,3 +27,7 @@ func (s *URLService) CreateShortURL(originalURL string) error {
 
 	return s.urlRepository.Create(url)
 }
+
+func (s *URLService) FindByShortCode(shortCode string) (models.URL, error) {
+	return s.urlRepository.FindByShortCode(shortCode)
+}

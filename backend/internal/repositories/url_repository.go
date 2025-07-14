@@ -43,3 +43,21 @@ func (r *URLRepository) Create(url *models.URL) error {
 
 	return nil
 }
+
+func (r *URLRepository) FindByShortCode(shortCode string) (models.URL, error) {
+	collection := database.Client.Database("local").Collection("urls")
+
+	_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var url models.URL
+
+	err := collection.FindOne(context.TODO(), bson.M{"short_code": shortCode}).Decode(&url)
+
+	if err != nil {
+		return models.URL{}, err
+	}
+
+	return url, nil
+
+}

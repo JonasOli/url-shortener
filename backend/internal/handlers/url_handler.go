@@ -35,4 +35,18 @@ func (h *URLHandler) RegisterRoutes() {
 
 		c.JSON(http.StatusCreated, gin.H{})
 	})
+
+	h.route.GET("/:shortCode", func(c *gin.Context) {
+		shortCode := c.Param("shortCode")
+
+		url, err := service.FindByShortCode(shortCode)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "URL not found"})
+			return
+		}
+
+		c.Redirect(http.StatusFound, url.OriginalURL)
+	})
+
 }
