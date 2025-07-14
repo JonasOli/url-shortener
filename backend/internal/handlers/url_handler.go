@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"url-shortener/internal/repositories"
 	"url-shortener/internal/services"
 
 	"github.com/gin-gonic/gin"
@@ -23,8 +22,7 @@ func NewURLHandler(route *gin.Engine, redis *redis.Client) *URLHandler {
 }
 
 func (h *URLHandler) RegisterRoutes() {
-	repository := repositories.NewURLRepository(h.redis)
-	service := services.NewURLService(repository, h.redis)
+	service := services.NewURLService(h.redis)
 
 	h.route.POST("/shorten", func(c *gin.Context) {
 		var shortenPost ShortenPost

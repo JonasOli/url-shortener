@@ -14,8 +14,10 @@ type URLService struct {
 	redis         *redis.Client
 }
 
-func NewURLService(url_repository *repositories.URLRepository, redis *redis.Client) *URLService {
-	return &URLService{urlRepository: url_repository, redis: redis}
+func NewURLService(redis *redis.Client) *URLService {
+	repository := repositories.NewURLRepository(redis)
+
+	return &URLService{urlRepository: repository, redis: redis}
 }
 
 func (s *URLService) CreateShortURL(originalURL string) error {
