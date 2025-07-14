@@ -24,11 +24,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := database.NewPostgresDB(os.Getenv("GOOSE_DBSTRING"))
-
-	if err != nil {
-		panic("failed to connect database")
-	}
+	database.InitMongo(os.Getenv("mongoURI"))
 
 	r := gin.Default()
 
@@ -39,7 +35,7 @@ func main() {
 		})
 	})
 
-	handlers.NewURLHandler(r, db).RegisterRoutes()
+	handlers.NewURLHandler(r).RegisterRoutes()
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

@@ -6,24 +6,22 @@ import (
 	"url-shortener/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type URLHandler struct {
 	route *gin.Engine
-	db    *gorm.DB
 }
 
 type ShortenPost struct {
 	URL string `json:"url" binding:"required"`
 }
 
-func NewURLHandler(route *gin.Engine, db *gorm.DB) *URLHandler {
-	return &URLHandler{route: route, db: db}
+func NewURLHandler(route *gin.Engine) *URLHandler {
+	return &URLHandler{route: route}
 }
 
 func (h *URLHandler) RegisterRoutes() {
-	service := services.NewURLService(repositories.NewURLRepository(h.db))
+	service := services.NewURLService(repositories.NewURLRepository())
 
 	h.route.POST("/shorten", func(c *gin.Context) {
 		var shortenPost ShortenPost

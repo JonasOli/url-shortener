@@ -1,6 +1,7 @@
 package services
 
 import (
+	"time"
 	"url-shortener/internal/models"
 	"url-shortener/internal/repositories"
 
@@ -21,6 +22,7 @@ func (s *URLService) CreateShortURL(originalURL string) error {
 	url := &models.URL{
 		OriginalURL: originalURL,
 		ShortCode:   shortCode,
+		CreatedAt:   time.Now(),
 	}
 
 	return s.urlRepository.Create(url)
