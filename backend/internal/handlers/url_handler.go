@@ -6,22 +6,25 @@ import (
 	"url-shortener/internal/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type URLHandler struct {
 	route *gin.Engine
+	redis *redis.Client
 }
 
 type ShortenPost struct {
 	URL string `json:"url" binding:"required"`
 }
 
-func NewURLHandler(route *gin.Engine) *URLHandler {
-	return &URLHandler{route: route}
+func NewURLHandler(route *gin.Engine, redis *redis.Client) *URLHandler {
+	return &URLHandler{route: route, redis: redis}
 }
 
 func (h *URLHandler) RegisterRoutes() {
-	service := services.NewURLService(repositories.NewURLRepository())
+	repository := repositories.NewURLRepository(h.redis)
+	service := services.NewURLService(repository, h.redis)
 
 	h.route.POST("/shorten", func(c *gin.Context) {
 		var shortenPost ShortenPost
@@ -39,14 +42,14 @@ func (h *URLHandler) RegisterRoutes() {
 	h.route.GET("/:shortCode", func(c *gin.Context) {
 		shortCode := c.Param("shortCode")
 
-		url, err := service.FindByShortCode(shortCode)
+		originalUrl, err := service.FindByShortCode(shortCode)
 
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "URL not found"})
 			return
 		}
 
-		c.Redirect(http.StatusFound, url.OriginalURL)
+		c.Redirect(http.StatusFound, originalUrl)
 	})
 
 }

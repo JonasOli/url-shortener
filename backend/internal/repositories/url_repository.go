@@ -6,16 +6,22 @@ import (
 	"url-shortener/internal/models"
 	"url-shortener/pkg/database"
 
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type URLRepository struct {
+	redis *redis.Client
 }
 
-func NewURLRepository() *URLRepository {
-	return &URLRepository{}
+type OriginalURLOnly struct {
+	OriginalURL string `bson:"original_url"`
+}
+
+func NewURLRepository(redis *redis.Client) *URLRepository {
+	return &URLRepository{redis: redis}
 }
 
 func (r *URLRepository) Create(url *models.URL) error {
@@ -25,7 +31,7 @@ func (r *URLRepository) Create(url *models.URL) error {
 	defer cancel()
 
 	indexModel := mongo.IndexModel{
-		Keys:    bson.D{{Key: "short_code", Value: 1}}, // 1 for ascending order
+		Keys:    bson.D{{Key: "short_code", Value: 1}},
 		Options: options.Index().SetUnique(true).SetName("short_code_unique_idx"),
 	}
 
@@ -44,20 +50,33 @@ func (r *URLRepository) Create(url *models.URL) error {
 	return nil
 }
 
-func (r *URLRepository) FindByShortCode(shortCode string) (models.URL, error) {
+func (r *URLRepository) FindByShortCode(shortCode string) (string, error) {
+	ctx := context.Background()
+
+	cachedURL, err := r.redis.Get(ctx, shortCode).Result()
+
+	if err == nil {
+		return cachedURL, nil
+	}
+
 	collection := database.Client.Database("local").Collection("urls")
 
 	_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var url models.URL
+	var result OriginalURLOnly
 
-	err := collection.FindOne(context.TODO(), bson.M{"short_code": shortCode}).Decode(&url)
+	err = collection.FindOne(context.TODO(), bson.M{"short_code": shortCode}).Decode(&result)
 
 	if err != nil {
-		return models.URL{}, err
+		return "", err
 	}
 
-	return url, nil
+	err = r.redis.Set(ctx, shortCode, result.OriginalURL, 0).Err()
 
+	if err != nil {
+		return "", err
+	}
+
+	return result.OriginalURL, nil
 }

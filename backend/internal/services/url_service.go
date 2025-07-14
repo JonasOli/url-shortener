@@ -6,14 +6,16 @@ import (
 	"url-shortener/internal/repositories"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type URLService struct {
 	urlRepository *repositories.URLRepository
+	redis         *redis.Client
 }
 
-func NewURLService(url_repository *repositories.URLRepository) *URLService {
-	return &URLService{urlRepository: url_repository}
+func NewURLService(url_repository *repositories.URLRepository, redis *redis.Client) *URLService {
+	return &URLService{urlRepository: url_repository, redis: redis}
 }
 
 func (s *URLService) CreateShortURL(originalURL string) error {
@@ -28,6 +30,6 @@ func (s *URLService) CreateShortURL(originalURL string) error {
 	return s.urlRepository.Create(url)
 }
 
-func (s *URLService) FindByShortCode(shortCode string) (models.URL, error) {
+func (s *URLService) FindByShortCode(shortCode string) (string, error) {
 	return s.urlRepository.FindByShortCode(shortCode)
 }
