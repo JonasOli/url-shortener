@@ -72,7 +72,7 @@ func (r *URLRepository) FindByShortCode(shortCode string) (string, error) {
 		return "", err
 	}
 
-	err = r.redis.Set(ctx, shortCode, result.OriginalURL, 0).Err()
+	err = r.redis.Set(ctx, shortCode, result.OriginalURL, 60*time.Minute).Err()
 
 	if err != nil {
 		return "", err
