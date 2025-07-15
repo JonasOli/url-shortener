@@ -1,11 +1,11 @@
 package services
 
 import (
+	"math/rand"
 	"time"
 	"url-shortener/internal/models"
 	"url-shortener/internal/repositories"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -21,7 +21,7 @@ func NewURLService(redis *redis.Client) *URLService {
 }
 
 func (s *URLService) CreateShortURL(originalURL string) error {
-	shortCode := uuid.New().String()[:8]
+	shortCode := generateShortCode()
 
 	url := &models.URL{
 		OriginalURL: originalURL,
@@ -34,4 +34,18 @@ func (s *URLService) CreateShortURL(originalURL string) error {
 
 func (s *URLService) FindByShortCode(shortCode string) (string, error) {
 	return s.urlRepository.FindByShortCode(shortCode)
+}
+
+func generateShortCode() string {
+	const base62Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const keyLength = 8
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	var shortKey = make([]byte, keyLength)
+
+	for i := range shortKey {
+		shortKey[i] = base62Alphabet[r.Intn(len(base62Alphabet))]
+	}
+
+	return string(shortKey)
 }
