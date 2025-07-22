@@ -43,8 +43,6 @@ function App() {
       <form
         className="flex flex-row gap-2 w-full max-w-md"
         onSubmit={handleSubmit((data) => {
-          console.log(data, " data");
-
           mutation.mutate(data.url);
         })}
       >
