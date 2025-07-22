@@ -16,6 +16,8 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    volumes:
+    - ./frontend/runtime-env.js:/usr/share/nginx/html/env.js:ro
   db:
     image: mongo:latest
     container_name: url-shortener-mongo
