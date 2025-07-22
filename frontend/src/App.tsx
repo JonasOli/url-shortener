@@ -75,7 +75,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {urls.map((url) => (
+            {urls?.map((url) => (
               <tr key={url.short_code}>
                 <td>{url.original_url.slice(0, 25)}...</td>
                 <td className="flex place-content-between">
