@@ -50,4 +50,14 @@ func (h *URLHandler) RegisterRoutes() {
 		c.Redirect(http.StatusFound, originalUrl)
 	})
 
+	h.route.GET("url/list", func(c *gin.Context) {
+		urls, err := service.List()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve URLs"})
+			return
+		}
+
+		c.JSON(http.StatusOK, urls)
+	})
 }

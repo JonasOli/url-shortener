@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"log"
 	"time"
 	"url-shortener/internal/models"
 	"url-shortener/pkg/database"
@@ -51,7 +52,9 @@ func (r *URLRepository) Create(url *models.URL) error {
 }
 
 func (r *URLRepository) FindByShortCode(shortCode string) (string, error) {
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+
+	defer cancel()
 
 	cachedURL, err := r.redis.Get(ctx, shortCode).Result()
 
@@ -61,12 +64,9 @@ func (r *URLRepository) FindByShortCode(shortCode string) (string, error) {
 
 	collection := database.Client.Database("local").Collection("urls")
 
-	_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	var result OriginalURLOnly
 
-	err = collection.FindOne(context.TODO(), bson.M{"short_code": shortCode}).Decode(&result)
+	err = collection.FindOne(ctx, bson.M{"short_code": shortCode}).Decode(&result)
 
 	if err != nil {
 		return "", err
@@ -79,4 +79,28 @@ func (r *URLRepository) FindByShortCode(shortCode string) (string, error) {
 	}
 
 	return result.OriginalURL, nil
+}
+
+func (r *URLRepository) List() ([]models.URL, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+
+	defer cancel()
+
+	collection := database.Client.Database("local").Collection("urls")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer cursor.Close(ctx)
+
+	var urls []models.URL
+
+	if err = cursor.All(ctx, &urls); err != nil {
+		return nil, err
+	}
+
+	return urls, nil
 }

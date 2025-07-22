@@ -36,6 +36,10 @@ func (s *URLService) FindByShortCode(shortCode string) (string, error) {
 	return s.urlRepository.FindByShortCode(shortCode)
 }
 
+func (s *URLService) List() ([]models.URL, error) {
+	return s.urlRepository.List()
+}
+
 func generateShortCode() string {
 	const base62Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	const keyLength = 8
