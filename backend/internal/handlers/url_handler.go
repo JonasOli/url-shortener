@@ -23,8 +23,9 @@ func NewURLHandler(route *gin.Engine, redis *redis.Client) *URLHandler {
 
 func (h *URLHandler) RegisterRoutes() {
 	service := services.NewURLService(h.redis)
+	r := h.route.Group("/url")
 
-	h.route.POST("/shorten", func(c *gin.Context) {
+	r.POST("/shorten", func(c *gin.Context) {
 		var shortenPost ShortenPost
 
 		if err := c.ShouldBindJSON(&shortenPost); err != nil {
@@ -50,7 +51,7 @@ func (h *URLHandler) RegisterRoutes() {
 		c.Redirect(http.StatusFound, originalUrl)
 	})
 
-	h.route.GET("url/list", func(c *gin.Context) {
+	r.GET("/list", func(c *gin.Context) {
 		urls, err := service.List()
 
 		if err != nil {
