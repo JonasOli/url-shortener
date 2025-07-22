@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
+import { apiUrl } from "./consts";
 import { queryClient } from "./main";
 import { createShortUrl, listUrls } from "./service/url";
 
@@ -79,7 +80,7 @@ function App() {
                 <td>{url.original_url.slice(0, 25)}...</td>
                 <td className="flex place-content-between">
                   <a
-                    href={`http://localhost:8000/${url.short_code}`}
+                    href={`${apiUrl}/${url.short_code}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -91,7 +92,7 @@ function App() {
                     className="size-8 cursor-pointer mr-10"
                     type="button"
                     onClick={() => {
-                      handleCopy(`http://localhost:8000/${url.short_code}`);
+                      handleCopy(`${apiUrl}/${url.short_code}`);
                     }}
                   >
                     <Copy />
