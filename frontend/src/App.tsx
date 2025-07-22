@@ -1,5 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Copy } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { queryClient } from "./main";
@@ -24,6 +26,15 @@ function App() {
     queryKey: ["urls"],
     queryFn: listUrls,
   });
+
+  const handleCopy = async (textToCopy: string) => {
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      toast("Copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
@@ -55,7 +66,7 @@ function App() {
       {isLoading ? (
         <p>loading...</p>
       ) : (
-        <table className="mt-10 text-sm table-auto text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <table className="mt-10 w-200 table-auto text-lg text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead>
             <tr>
               <th>Original URL</th>
@@ -68,7 +79,7 @@ function App() {
             {urls.map((url) => (
               <tr key={url.short_code}>
                 <td>{url.original_url.slice(0, 25)}...</td>
-                <td>
+                <td className="flex place-content-between">
                   <a
                     href={`http://localhost:8000/${url.short_code}`}
                     target="_blank"
@@ -76,6 +87,17 @@ function App() {
                   >
                     {url.short_code}
                   </a>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-8 cursor-pointer mr-10"
+                    type="button"
+                    onClick={() => {
+                      handleCopy(`http://localhost:8000/${url.short_code}`);
+                    }}
+                  >
+                    <Copy />
+                  </Button>
                 </td>
                 <td>{new Date(url.created_at).toLocaleString()}</td>
                 {/* <td>{url.click_count}</td> */}
