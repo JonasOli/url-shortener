@@ -15,6 +15,8 @@ FROM alpine:latest
 
 WORKDIR /app
 
+COPY .env.prod /app/.env
+
 COPY --from=builder /app/url-shortener .
 
 EXPOSE 8080
