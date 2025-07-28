@@ -43,7 +43,7 @@ Create a short link.
 }
 ```
 
-### GET /:shortCode
+### GET `/:shortCode`
 
 Redirect to the original URL based on the short code.
 
